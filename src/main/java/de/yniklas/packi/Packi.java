@@ -1,4 +1,4 @@
-package de.yniklas.packagerize;
+package de.yniklas.packi;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -73,7 +73,8 @@ public class Packi {
                 || type.equals(String.class);
     }
 
-    private static void packTo(JSONObject origin, String targetDir, String defaultFieldName, Object value, String scope) {
+    private static void packTo(JSONObject origin, String targetDir, String defaultFieldName, Object value,
+                               String scope) {
         if (targetDir.equals("")) {
             origin.put(defaultFieldName, parse(value, scope));
             return;
@@ -117,9 +118,7 @@ public class Packi {
                 if (isJSONPrimitive(item.getClass())) {
                     list.put(item);
                 } else {
-                    try {
-                        list.put(pack(scope, item));
-                    } catch (IllegalAccessException ignored) { }
+                    list.put(parse(item, scope));
                 }
             });
             value = list;
@@ -129,12 +128,16 @@ public class Packi {
                 if (isJSONPrimitive(Array.get(value, i).getClass())) {
                     array.put(Array.get(value, i));
                 } else {
-                    try {
-                        array.put(pack(scope, Array.get(value, i)));
-                    } catch (IllegalAccessException ignored) { }
+                    array.put(parse(Array.get(value, i), scope));
                 }
             }
             value = array;
+        } else if (!isJSONPrimitive(value.getClass())) {
+            try {
+                value = pack(scope, value);
+            } catch (IllegalAccessException e) {
+                e.printStackTrace();
+            }
         }
         return value;
     }

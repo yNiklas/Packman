@@ -1,6 +1,6 @@
-package de.yniklas.packagerize.examples;
+package de.yniklas.packi.examples;
 
-import de.yniklas.packagerize.Include;
+import de.yniklas.packi.Include;
 
 public class ExampleClass {
     /**

@@ -1,10 +1,13 @@
-import de.yniklas.packagerize.examples.ExampleClass;
-import de.yniklas.packagerize.Packi;
-import de.yniklas.packagerize.examples.ExampleListAttributes;
-import de.yniklas.packagerize.examples.ExamplePackage;
+import de.yniklas.packi.examples.ExampleClass;
+import de.yniklas.packi.Packi;
+import de.yniklas.packi.examples.ExampleListAttributes;
+import de.yniklas.packi.examples.ExamplePackage;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.junit.jupiter.api.Test;
+
+import java.util.ArrayList;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 public class PackageTest {
@@ -19,7 +22,7 @@ public class PackageTest {
         expected.put("name", "Jack");
         expected.put("shameJon", "Jon is a N00b");
 
-        assertEquals(expected.toString(), packaged.toString());
+        assertTrue(expected.similar(packaged));
     }
 
     @Test
@@ -32,7 +35,7 @@ public class PackageTest {
         expected.put("synonym", "Poop");
         expected.put("name", "Jack");
 
-        assertEquals(expected.toString(), packaged.toString());
+        assertTrue(expected.similar(packaged));
     }
 
     @Test
@@ -45,7 +48,7 @@ public class PackageTest {
         user.put("password", "topSecret1234");
         expected.put("user", user);
 
-        assertEquals(expected.toString(), packaged.toString());
+        assertTrue(expected.similar(packaged));
     }
 
     @Test
@@ -64,7 +67,7 @@ public class PackageTest {
         userData.put("password", "topSecret");
         expected.put("userData", userData);
 
-        assertEquals(expected.toString(), packaged.toString());
+        assertTrue(expected.similar(packaged));
     }
 
     @Test
@@ -83,7 +86,7 @@ public class PackageTest {
         // No password in the display scope package
         expected.put("userData", userData);
 
-        assertEquals(expected.toString(), packaged.toString());
+        assertTrue(expected.similar(packaged));
     }
 
     @Test
@@ -101,6 +104,46 @@ public class PackageTest {
         expected.put("myInts", myInts);
         expected.put("myBytes", myBytes);
 
-        assertEquals(expected.toString(), packaged.toString());
+        assertTrue(expected.similar(packaged));
+    }
+
+    @Test
+    public void testAdvancedCollectionTypes() throws IllegalAccessException {
+        JSONObject packaged = Packi.pack("advancedCollections", new ExampleListAttributes());
+
+        JSONObject expected = new JSONObject();
+
+        JSONArray twoDimensionsOverpower = new JSONArray();
+
+        JSONArray subArr1 = new JSONArray();
+        subArr1.put("have");
+
+        JSONArray subArr2 = new JSONArray();
+        subArr2.put("a").put("nice").put("day");
+
+        twoDimensionsOverpower.put(subArr1).put(subArr2);
+
+        JSONArray registeredUser = new JSONArray();
+
+        JSONObject u1 = new JSONObject();
+        u1.put("username", "Jog");
+        u1.put("password", "topSecret");
+        registeredUser.put(u1);
+
+        JSONObject u2 = new JSONObject();
+        u2.put("username", "Jog");
+        u2.put("password", "topSecret");
+        registeredUser.put(u2);
+
+        JSONArray floatLists = new JSONArray();
+        JSONArray innerFloats = new JSONArray();
+        innerFloats.put(6.8f);
+        floatLists.put(new ArrayList<>()).put(innerFloats);
+
+        expected.put("floats", floatLists);
+        expected.put("registeredUsers", registeredUser);
+        expected.put("twoDimensionsOverpower", twoDimensionsOverpower);
+
+        assertTrue(expected.similar(packaged));
     }
 }

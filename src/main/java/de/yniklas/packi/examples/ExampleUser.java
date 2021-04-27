@@ -1,7 +1,7 @@
-package de.yniklas.packagerize.examples;
+package de.yniklas.packi.examples;
 
-import de.yniklas.packagerize.Exclude;
-import de.yniklas.packagerize.Package;
+import de.yniklas.packi.Exclude;
+import de.yniklas.packi.Package;
 
 @Package
 public class ExampleUser {
