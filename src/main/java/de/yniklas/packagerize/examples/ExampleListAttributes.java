@@ -13,6 +13,12 @@ public class ExampleListAttributes {
      */
     List<Integer> myInts = new ArrayList<>();
 
+    /**
+     * The list will be included due to the @Package annotation of the class.
+     * It will be represented as JSON-Array containing bytes.
+     */
+    byte[] myBytes = new byte[]{1,2};
+
     public ExampleListAttributes() {
         myInts.add(1);
         myInts.add(5);

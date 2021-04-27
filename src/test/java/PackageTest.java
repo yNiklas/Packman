@@ -91,9 +91,15 @@ public class PackageTest {
         JSONObject packaged = Packi.pack("", new ExampleListAttributes());
 
         JSONObject expected = new JSONObject();
+
         JSONArray myInts = new JSONArray();
         myInts.put(1).put(5);
+
+        JSONArray myBytes = new JSONArray();
+        myBytes.put(1).put(2);
+
         expected.put("myInts", myInts);
+        expected.put("myBytes", myBytes);
 
         assertEquals(expected.toString(), packaged.toString());
     }

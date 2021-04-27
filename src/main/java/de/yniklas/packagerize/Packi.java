@@ -3,6 +3,7 @@ package de.yniklas.packagerize;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -36,9 +37,12 @@ public class Packi {
                     key = include.key().equals("") ? field.getName() : include.key();
                 }
 
-                if (isJSONPrimitive(field.getType()) || field.getType().equals(List.class)) {
+                if (isJSONPrimitive(field.getType()) || field.getType().equals(List.class)
+                        || field.getType().isArray()) {
+                    // Packaging for primitive types, lists and arrays
                     packTo(pack, dir, field.getName(), field.get(packObject), scope);
                 } else {
+                    // Custom class packaging (e.g. annotated custom classes)
                     pack.put(key, pack(scope, field.get(packObject)));
                 }
             }
@@ -71,7 +75,7 @@ public class Packi {
 
     private static void packTo(JSONObject origin, String targetDir, String defaultFieldName, Object value, String scope) {
         if (targetDir.equals("")) {
-            origin.put(defaultFieldName, value);
+            origin.put(defaultFieldName, parse(value, scope));
             return;
         }
 
@@ -94,27 +98,44 @@ public class Packi {
                     dirName = defaultFieldName;
                 }
 
-                if (value instanceof List) {
-                    JSONArray list = new JSONArray();
-                    ((List) value).forEach(item -> {
-                        if (isJSONPrimitive(item.getClass())) {
-                            list.put(item);
-                        } else {
-                            try {
-                                list.put(pack(scope, item));
-                            } catch (IllegalAccessException ignored) { }
-                        }
-                    });
-                    value = list;
-                }
-
-                fulfill.put(dirName, value);
+                fulfill.put(dirName, parse(value, scope));
             } else if (!fulfill.has(dir)) {
+                // Create sub-directory in the key-hierarchy
                 fulfill.put(dir, new JSONObject());
                 fulfill = fulfill.getJSONObject(dir);
             } else if (fulfill.has(dir)) {
+                // If sub-directory exists, update just the object reference
                 fulfill = fulfill.getJSONObject(dir);
             }
         }
+    }
+
+    private static Object parse(Object value, String scope) {
+        if (value instanceof List) {
+            JSONArray list = new JSONArray();
+            ((List) value).forEach(item -> {
+                if (isJSONPrimitive(item.getClass())) {
+                    list.put(item);
+                } else {
+                    try {
+                        list.put(pack(scope, item));
+                    } catch (IllegalAccessException ignored) { }
+                }
+            });
+            value = list;
+        } else if (value.getClass().isArray()) {
+            JSONArray array = new JSONArray();
+            for (int i = 0; i < Array.getLength(value); i++) {
+                if (isJSONPrimitive(Array.get(value, i).getClass())) {
+                    array.put(Array.get(value, i));
+                } else {
+                    try {
+                        array.put(pack(scope, Array.get(value, i)));
+                    } catch (IllegalAccessException ignored) { }
+                }
+            }
+            value = array;
+        }
+        return value;
     }
 }
