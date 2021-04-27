@@ -1,6 +1,8 @@
 import de.yniklas.packagerize.examples.ExampleClass;
 import de.yniklas.packagerize.Packi;
+import de.yniklas.packagerize.examples.ExampleListAttributes;
 import de.yniklas.packagerize.examples.ExamplePackage;
+import org.json.JSONArray;
 import org.json.JSONObject;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
@@ -80,6 +82,18 @@ public class PackageTest {
         userData.put("username", "Jog");
         // No password in the display scope package
         expected.put("userData", userData);
+
+        assertEquals(expected.toString(), packaged.toString());
+    }
+
+    @Test
+    public void testLists() throws IllegalAccessException {
+        JSONObject packaged = Packi.pack("", new ExampleListAttributes());
+
+        JSONObject expected = new JSONObject();
+        JSONArray myInts = new JSONArray();
+        myInts.put(1).put(5);
+        expected.put("myInts", myInts);
 
         assertEquals(expected.toString(), packaged.toString());
     }

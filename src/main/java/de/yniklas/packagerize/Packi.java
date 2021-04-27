@@ -1,5 +1,6 @@
 package de.yniklas.packagerize;
 
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.lang.reflect.Field;
@@ -35,8 +36,8 @@ public class Packi {
                     key = include.key().equals("") ? field.getName() : include.key();
                 }
 
-                if (isJSONPrimitive(field.getType())) {
-                    packTo(pack, dir, field.getName(), field.get(packObject));
+                if (isJSONPrimitive(field.getType()) || field.getType().equals(List.class)) {
+                    packTo(pack, dir, field.getName(), field.get(packObject), scope);
                 } else {
                     pack.put(key, pack(scope, field.get(packObject)));
                 }
@@ -68,20 +69,7 @@ public class Packi {
                 || type.equals(String.class);
     }
 
-    private static boolean isPartOfScope(String scope, String[] packageScopes) {
-        System.out.println(scope);
-        for (String packageScope : packageScopes) {
-            String[] dirs = packageScope.split(DIR_SPLIT);
-            for (String dir : dirs) {
-                if (dir.equals(scope)) {
-                    return true;
-                }
-            }
-        }
-        return false;
-    }
-
-    private static void packTo(JSONObject origin, String targetDir, String defaultFieldName, Object value) {
+    private static void packTo(JSONObject origin, String targetDir, String defaultFieldName, Object value, String scope) {
         if (targetDir.equals("")) {
             origin.put(defaultFieldName, value);
             return;
@@ -100,12 +88,27 @@ public class Packi {
 
             if (dirs.indexOf(dir) == dirs.size() - 1) {
                 // Deepest directory reached
+                String dirName = dir;
                 if (dir.equals(DIR_SPLIT)) {
                     // Scope identifier ends with / -> use attribute name as key
-                    fulfill.put(defaultFieldName, value);
-                } else {
-                    fulfill.put(dir, value);
+                    dirName = defaultFieldName;
                 }
+
+                if (value instanceof List) {
+                    JSONArray list = new JSONArray();
+                    ((List) value).forEach(item -> {
+                        if (isJSONPrimitive(item.getClass())) {
+                            list.put(item);
+                        } else {
+                            try {
+                                list.put(pack(scope, item));
+                            } catch (IllegalAccessException ignored) { }
+                        }
+                    });
+                    value = list;
+                }
+
+                fulfill.put(dirName, value);
             } else if (!fulfill.has(dir)) {
                 fulfill.put(dir, new JSONObject());
                 fulfill = fulfill.getJSONObject(dir);
