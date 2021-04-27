@@ -28,4 +28,4 @@ jobs:
     
     steps:
     - name: Test JUnit
-      run: mvn -f pom.xml test
+      run: mvn -f ../pom.xml test
