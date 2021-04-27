@@ -19,23 +19,26 @@ public class Packi {
             if (isIncluded(field, scope, packObject.getClass())) {
                 // Either field is explicitly @Include annotated or inherit by the @Package annotation from the class
                 Include include = field.getAnnotation(Include.class);
-                Package packaging = packObject.getClass().getAnnotation(Package.class);
+                IncludeOnly includeOnly = field.getAnnotation(IncludeOnly.class);
 
-                if (include == null) {
-                    // Inherit annotation @Package - all values are default
-                    if (scope.equals("") || packaging.scopes().length == 0 || isPartOfScope(scope, packaging.scopes())) {
-                        if (isJSONPrimitive(field.getType())) {
-                            packTo(pack, "", field.getName(), field.get(packObject));
-                        }
-                    }
-                } else {
+                String dir = "";
+                String key = field.getName();
+
+                if (includeOnly != null) {
+                    // IncludeOnly field, ignore all other cases
+                    dir = includeOnly.key();
+                    key = includeOnly.key().equals("") ? field.getName() : includeOnly.key();
+                } else if (include != null) {
                     // Explicitly included by @Include annotation
-                    if (scope.equals("") || include.scopes().length == 0 || isPartOfScope(scope, include.scopes())) {
-                        // Package call to the scope
-                        if (isJSONPrimitive(field.getType())) {
-                            packTo(pack, include.key(), field.getName(), field.get(packObject));
-                        }
-                    }
+                    // Package call to the scope
+                    dir = include.key();
+                    key = include.key().equals("") ? field.getName() : include.key();
+                }
+
+                if (isJSONPrimitive(field.getType())) {
+                    packTo(pack, dir, field.getName(), field.get(packObject));
+                } else {
+                    pack.put(key, pack(scope, field.get(packObject)));
                 }
             }
         }
@@ -46,6 +49,11 @@ public class Packi {
         Exclude exclude = field.getAnnotation(Exclude.class);
         if (exclude != null && (exclude.scopes().length == 0 || Arrays.stream(exclude.scopes()).toList().contains(scope))) {
             return false;
+        }
+
+        IncludeOnly includeOnly = field.getAnnotation(IncludeOnly.class);
+        if (includeOnly != null) {
+            return Arrays.asList(includeOnly.scopes()).contains(scope);
         }
 
         Package packaging = objectClass.getAnnotation(Package.class);
@@ -61,6 +69,7 @@ public class Packi {
     }
 
     private static boolean isPartOfScope(String scope, String[] packageScopes) {
+        System.out.println(scope);
         for (String packageScope : packageScopes) {
             String[] dirs = packageScope.split(DIR_SPLIT);
             for (String dir : dirs) {

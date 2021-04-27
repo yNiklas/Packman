@@ -2,6 +2,7 @@ package de.yniklas.packagerize.examples;
 
 import de.yniklas.packagerize.Exclude;
 import de.yniklas.packagerize.Include;
+import de.yniklas.packagerize.IncludeOnly;
 import de.yniklas.packagerize.Package;
 
 @Package
@@ -44,4 +45,13 @@ public class ExamplePackage {
      */
     @Include(key = "synonym")
     String myVeryCoolSynonym = "Poop";
+
+    /**
+     * Include some user information in the display and auth scope.
+     * Attention: The class of an attribute annotated with @Include should be annotated
+     * as usual. Without @Package or @Include annotations, the object with the information
+     * about the attribute will be empty.
+     */
+    @IncludeOnly(key = "userData", scopes = {"display", "auth"})
+    ExampleUser exampleUser= new ExampleUser();
 }
