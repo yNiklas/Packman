@@ -27,5 +27,5 @@ public @interface IncludeOnly {
     /**
      * Specifies the onliest scopes where the field is included.
      */
-    String[] scopes() default {};
+    String[] scopes();
 }
