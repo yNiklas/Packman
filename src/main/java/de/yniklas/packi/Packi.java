@@ -9,33 +9,57 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+/**
+ * Packi packs objects into meaningful org.json.JSON objects.
+ *
+ * @author yNiklas (https://github.com/yNiklas)
+ * @version 1.0
+ * @apiNote https://github.com/yNiklas/Packi
+ */
 public class Packi {
     private static final String DIR_SPLIT = "/";
 
-    public static void main(String[] args) { }
-
-    public static JSONObject pack(String scope, Object packObject, Object... morePackageObjects) throws IllegalAccessException {
+    /**
+     * Packs (a) given object(s) regarding the objects Packi annotations.
+     * See https://github.com/yNiklas/Packi for more information and documentation.
+     *
+     * @param scope the scope to pack after.
+     * @param packObject the object to be packed.
+     * @param morePackageObjects further objects to be packed in all the same object ({@param packObject} will be
+     *                           in the same package).
+     * @return the packed object as a org.json.JSONObject.
+     */
+    public static JSONObject pack(String scope, Object packObject, Object... morePackageObjects) {
         // Single objects aren't in a sub-object inside the package.
         // -> Separate this case
         if (morePackageObjects.length == 0) {
-            return packSingleObject(packObject, scope);
+            try {
+                return packSingleObject(packObject, scope);
+            } catch (IllegalAccessException e) {
+                // Return an empty object in case of access errors
+                return new JSONObject();
+            }
         }
 
         List<Object> toPackObjects = new ArrayList<>(Arrays.asList(morePackageObjects));
         toPackObjects.add(packObject);
         JSONObject fullPack = new JSONObject();
 
-        for (Object toPackObject : toPackObjects) {
-            JSONObject objectAsJSON = packSingleObject(toPackObject, scope);
+        try {
+            for (Object toPackObject : toPackObjects) {
+                JSONObject objectAsJSON = packSingleObject(toPackObject, scope);
 
-            // Give every object the key defined in the class Package annotation.
-            // For default, use the class name.
-            if (toPackObject.getClass().getAnnotation(Package.class) != null
-                    && !toPackObject.getClass().getAnnotation(Package.class).key().equals("")) {
-                fullPack.put(toPackObject.getClass().getAnnotation(Package.class).key(), objectAsJSON);
-            } else {
-                fullPack.put(toPackObject.getClass().getName(), objectAsJSON);
+                // Give every object the key defined in the class Package annotation.
+                // For default, use the class name.
+                if (toPackObject.getClass().getAnnotation(Package.class) != null
+                        && !toPackObject.getClass().getAnnotation(Package.class).key().equals("")) {
+                    fullPack.put(toPackObject.getClass().getAnnotation(Package.class).key(), objectAsJSON);
+                } else {
+                    fullPack.put(toPackObject.getClass().getName(), objectAsJSON);
+                }
             }
+        } catch (IllegalAccessException e) {
+            return fullPack;
         }
         return fullPack;
     }
@@ -97,8 +121,8 @@ public class Packi {
 
     private static boolean isJSONPrimitive(Class<?> type) {
         return type.isPrimitive() || type.equals(Integer.class) || type.equals(Long.class)
-                || type.equals(Float.class) || type.equals(Byte.class)
-                || type.equals(String.class);
+                || type.equals(Float.class) || type.equals(Byte.class) || type.equals(Double.class)
+                || type.equals(Character.class) || type.equals(String.class) || type.equals(Short.class);
     }
 
     private static void packTo(JSONObject origin, String targetDir, String defaultFieldName, Object value,
@@ -161,11 +185,7 @@ public class Packi {
             }
             value = array;
         } else if (!isJSONPrimitive(value.getClass())) {
-            try {
-                value = pack(scope, value);
-            } catch (IllegalAccessException e) {
-                e.printStackTrace();
-            }
+            value = pack(scope, value);
         }
         return value;
     }
