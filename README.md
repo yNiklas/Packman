@@ -10,7 +10,7 @@ Annotate Java classes with the following annotations:
 
 ---
 
-#### ```@Package``` 
+### ```@Package``` 
 Annotation for classes. Indicates the class fields to be part of packages without the need to explicitly annotate every field.
 Unnotated attributes of objects of a class annotated with ```@Package``` will be implicitly included in packages of the object.
 
@@ -35,7 +35,7 @@ class User {
 For details and more features, see the documentation of the ```@Package``` annotation.
 
 ---
-#### ```@Include```
+### ```@Include```
 Annotation for fields/attributes. Indicates a field being included in packages. The ```@Include``` annotation takes two optional arguments:
 + ```key: String``` Defines the key of the field in the packaged JSON object. As default, the fields/attributes name is the key in the packaged JSON.
 + ```scopes: String[]``` Defines the scopes in which packages the field is present/packed.
@@ -54,7 +54,7 @@ class Example {
 ```
 
 ---
-#### ```@Exclude```
+### ```@Exclude```
 Annotation for fields/attributes. Indicates a field being exluded from packages. Per default - without passing the scopes list as parameter - the field will be excluded from all packages.
 + ```scopes: String[]``` Defines the scopes where the field is excluded. Default is {} which means the field is exluded from all packages of every scope
 
