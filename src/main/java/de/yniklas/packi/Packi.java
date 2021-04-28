@@ -15,11 +15,39 @@ public class Packi {
     public static void main(String[] args) { }
 
     public static JSONObject pack(String scope, Object packObject, Object... morePackageObjects) throws IllegalAccessException {
+        // Single objects aren't in a sub-object inside the package.
+        // -> Separate this case
+        if (morePackageObjects.length == 0) {
+            return packSingleObject(packObject, scope);
+        }
+
+        List<Object> toPackObjects = new ArrayList<>(Arrays.asList(morePackageObjects));
+        toPackObjects.add(packObject);
+        JSONObject fullPack = new JSONObject();
+
+        for (Object toPackObject : toPackObjects) {
+            JSONObject objectAsJSON = packSingleObject(toPackObject, scope);
+
+            // Give every object the key defined in the class Package annotation.
+            // For default, use the class name.
+            if (toPackObject.getClass().getAnnotation(Package.class) != null
+                    && !toPackObject.getClass().getAnnotation(Package.class).key().equals("")) {
+                fullPack.put(toPackObject.getClass().getAnnotation(Package.class).key(), objectAsJSON);
+            } else {
+                fullPack.put(toPackObject.getClass().getName(), objectAsJSON);
+            }
+        }
+        return fullPack;
+    }
+
+    private static JSONObject packSingleObject(Object packObject, String scope) throws IllegalAccessException {
         JSONObject pack = new JSONObject();
+
         for (Field field : packObject.getClass().getDeclaredFields()) {
             field.setAccessible(true);
             if (isIncluded(field, scope, packObject.getClass())) {
-                // Either field is explicitly @Include annotated or inherit by the @Package annotation from the class
+                // Either field is explicitly @Include annotated or inherit by the @Package annotation from the class.
+                // Otherwise there is an @IncludeOnly annotation
                 Include include = field.getAnnotation(Include.class);
                 IncludeOnly includeOnly = field.getAnnotation(IncludeOnly.class);
 

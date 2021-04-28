@@ -2,6 +2,7 @@ import de.yniklas.packi.examples.ExampleClass;
 import de.yniklas.packi.Packi;
 import de.yniklas.packi.examples.ExampleListAttributes;
 import de.yniklas.packi.examples.ExamplePackage;
+import de.yniklas.packi.examples.ExampleUser;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.junit.jupiter.api.Test;
@@ -143,6 +144,27 @@ public class PackageTest {
         expected.put("floats", floatLists);
         expected.put("registeredUsers", registeredUser);
         expected.put("twoDimensionsOverpower", twoDimensionsOverpower);
+
+        assertTrue(expected.similar(packaged));
+    }
+
+    @Test
+    public void testMultiPackaging() throws IllegalAccessException {
+        JSONObject packaged = Packi.pack("", new ExampleClass(), new ExampleUser());
+
+        JSONObject expected = new JSONObject();
+
+        JSONObject userData = new JSONObject();
+        userData.put("username", "Jog");
+        userData.put("password", "topSecret");
+
+        JSONObject exampleClass = new JSONObject();
+        JSONObject innerUser = new JSONObject();
+        innerUser.put("username", "Jack").put("password", "topSecret1234");
+        exampleClass.put("user", innerUser);
+
+        expected.put("userData", userData);
+        expected.put("de.yniklas.packi.examples.ExampleClass", exampleClass);
 
         assertTrue(expected.similar(packaged));
     }

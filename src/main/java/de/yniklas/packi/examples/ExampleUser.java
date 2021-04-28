@@ -3,7 +3,7 @@ package de.yniklas.packi.examples;
 import de.yniklas.packi.Exclude;
 import de.yniklas.packi.Package;
 
-@Package
+@Package(key = "userData")
 public class ExampleUser {
     private String username = "Jog";
 
