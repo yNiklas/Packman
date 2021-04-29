@@ -1,5 +1,5 @@
-# Packi:baggage_claim:- The Java-Object packaging:closed_book:
-Packi packs Java objects meaningful into JSONObjects - based on Annotations.
+# Packman:baggage_claim:- The Java-Object packaging:closed_book:
+Packman packs Java objects meaningful into JSONObjects - based on Annotations.
 > Typical use cases are f.e. Java backends sending JSON objects.
 A first, little example:
 ```java
@@ -33,11 +33,11 @@ Let's get into this.
 
 ## Usage
 1. Prepare classes for packaging
-2. Pack using Packi.pack(...);
+2. Pack using Packman.pack(...);
 
 ### Principle
 Use scopes to separate objects and adjust the fields/objects implemented in the JSON packages.
-For example, use a new scope for every request type like: "login", "getDashboardInfo". With scopes, you let Packi create your Packages individually based on the scopes passed as 
+For example, use a new scope for every request type like: "login", "getDashboardInfo". With scopes, you let Packman create your Packages individually based on the scopes passed as 
 parameter of a annotation. For further explanations and examples, see the example classes in this GitHub repository.
 
 ---
@@ -125,10 +125,10 @@ class User {
 ```
 
 ---
-### Pack with Packi
+### Pack with Packman
 After annotating the classes and fields, objects can be packed by typing the following command:
 ```java
-Packi.pack("myScope", theObjectIWantToPack);
+Packman.pack("myScope", theObjectIWantToPack);
 ```
 Pack parameters:
 + ```scope: String``` The scope you want to package. "" is default value and explicitly allowed since classes and fields can be annotated so.
