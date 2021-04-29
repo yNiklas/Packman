@@ -1,9 +1,9 @@
-package de.yniklas.packi.examples;
+package de.yniklas.packman.examples;
 
-import de.yniklas.packi.Exclude;
-import de.yniklas.packi.Include;
-import de.yniklas.packi.IncludeOnly;
-import de.yniklas.packi.Package;
+import de.yniklas.packman.Exclude;
+import de.yniklas.packman.Include;
+import de.yniklas.packman.IncludeOnly;
+import de.yniklas.packman.Package;
 
 @Package
 public class ExamplePackage {

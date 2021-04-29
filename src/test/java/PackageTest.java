@@ -1,10 +1,10 @@
-import de.yniklas.packi.examples.ExampleClass;
-import de.yniklas.packi.Packi;
-import de.yniklas.packi.examples.ExampleListAttributes;
-import de.yniklas.packi.examples.ExamplePackage;
-import de.yniklas.packi.examples.ExampleScopePackage;
-import de.yniklas.packi.examples.ExampleScopePackage2;
-import de.yniklas.packi.examples.ExampleUser;
+import de.yniklas.packman.examples.ExampleClass;
+import de.yniklas.packman.Packman;
+import de.yniklas.packman.examples.ExampleListAttributes;
+import de.yniklas.packman.examples.ExamplePackage;
+import de.yniklas.packman.examples.ExampleScopePackage;
+import de.yniklas.packman.examples.ExampleScopePackage2;
+import de.yniklas.packman.examples.ExampleUser;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.junit.jupiter.api.Test;
@@ -16,7 +16,7 @@ import static org.junit.jupiter.api.Assertions.*;
 public class PackageTest {
     @Test
     public void testPackageAnnotation() {
-        JSONObject packaged = Packi.pack("", new ExamplePackage());
+        JSONObject packaged = Packman.pack("", new ExamplePackage());
 
         JSONObject expected = new JSONObject();
         expected.put("foo", "bar");
@@ -30,7 +30,7 @@ public class PackageTest {
 
     @Test
     public void testPackageAnnotationWithScope() {
-        JSONObject packaged = Packi.pack("John", new ExamplePackage());
+        JSONObject packaged = Packman.pack("John", new ExamplePackage());
 
         JSONObject expected = new JSONObject();
         expected.put("foo", "bar");
@@ -43,7 +43,7 @@ public class PackageTest {
 
     @Test
     public void testDirectoryPackaging() {
-        JSONObject packaged = Packi.pack("", new ExampleClass());
+        JSONObject packaged = Packman.pack("", new ExampleClass());
 
         JSONObject expected = new JSONObject();
         JSONObject user = new JSONObject();
@@ -56,7 +56,7 @@ public class PackageTest {
 
     @Test
     public void testSubObjects() {
-        JSONObject packaged = Packi.pack("auth", new ExamplePackage());
+        JSONObject packaged = Packman.pack("auth", new ExamplePackage());
 
         JSONObject expected = new JSONObject();
         expected.put("foo", "bar");
@@ -75,7 +75,7 @@ public class PackageTest {
 
     @Test
     public void testSubObjectsWithExclude() {
-        JSONObject packaged = Packi.pack("display", new ExamplePackage());
+        JSONObject packaged = Packman.pack("display", new ExamplePackage());
 
         JSONObject expected = new JSONObject();
         expected.put("foo", "bar");
@@ -94,7 +94,7 @@ public class PackageTest {
 
     @Test
     public void testLists() {
-        JSONObject packaged = Packi.pack("", new ExampleListAttributes());
+        JSONObject packaged = Packman.pack("", new ExampleListAttributes());
 
         JSONObject expected = new JSONObject();
 
@@ -112,7 +112,7 @@ public class PackageTest {
 
     @Test
     public void testAdvancedCollectionTypes() {
-        JSONObject packaged = Packi.pack("advancedCollections", new ExampleListAttributes());
+        JSONObject packaged = Packman.pack("advancedCollections", new ExampleListAttributes());
 
         JSONObject expected = new JSONObject();
 
@@ -152,7 +152,7 @@ public class PackageTest {
 
     @Test
     public void testMultiPackaging() {
-        JSONObject packaged = Packi.pack("", new ExampleClass(), new ExampleUser());
+        JSONObject packaged = Packman.pack("", new ExampleClass(), new ExampleUser());
 
         JSONObject expected = new JSONObject();
 
@@ -166,31 +166,31 @@ public class PackageTest {
         exampleClass.put("user", innerUser);
 
         expected.put("userData", userData);
-        expected.put("de.yniklas.packi.examples.ExampleClass", exampleClass);
+        expected.put("de.yniklas.packman.examples.ExampleClass", exampleClass);
 
         assertTrue(expected.similar(packaged));
     }
 
     @Test
     public void testScopes() {
-        JSONObject packaged = Packi.pack("example", new ExampleScopePackage());
+        JSONObject packaged = Packman.pack("example", new ExampleScopePackage());
         JSONObject expected = new JSONObject().put("myCoolString", "cool!");
         assertTrue(expected.similar(packaged));
 
-        JSONObject packagedWithoutScope = Packi.pack("", new ExampleScopePackage());
+        JSONObject packagedWithoutScope = Packman.pack("", new ExampleScopePackage());
         assertTrue(new JSONObject().similar(packagedWithoutScope));
 
-        JSONObject packagedWithDirScope = Packi.pack("example", new ExampleScopePackage(), new ExampleUser());
+        JSONObject packagedWithDirScope = Packman.pack("example", new ExampleScopePackage(), new ExampleUser());
         JSONObject expected2 = new JSONObject();
         expected2.put("userData", new JSONObject().put("username", "Jog").put("password", "topSecret"));
-        expected2.put("asCoolObj", new JSONObject().put("de.yniklas.packi.examples.ExampleScopePackage",
+        expected2.put("asCoolObj", new JSONObject().put("de.yniklas.packman.examples.ExampleScopePackage",
                 new JSONObject().put("myCoolString", "cool!")));
 
         assertTrue(expected2.similar(packagedWithDirScope));
 
-        JSONObject packagedWithSameDir = Packi.pack("example", new ExampleScopePackage(), new ExampleScopePackage2());
-        JSONObject expected3 = new JSONObject().put("asCoolObj", new JSONObject().put("de.yniklas.packi.examples.ExampleScopePackage",
-                new JSONObject().put("myCoolString", "cool!")).put("de.yniklas.packi.examples.ExampleScopePackage2",
+        JSONObject packagedWithSameDir = Packman.pack("example", new ExampleScopePackage(), new ExampleScopePackage2());
+        JSONObject expected3 = new JSONObject().put("asCoolObj", new JSONObject().put("de.yniklas.packman.examples.ExampleScopePackage",
+                new JSONObject().put("myCoolString", "cool!")).put("de.yniklas.packman.examples.ExampleScopePackage2",
                 new JSONObject().put("seven", 7)));
         assertTrue(expected3.similar(packagedWithSameDir));
     }

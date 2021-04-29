@@ -1,6 +1,6 @@
-package de.yniklas.packi.examples;
+package de.yniklas.packman.examples;
 
-import de.yniklas.packi.Include;
+import de.yniklas.packman.Include;
 
 public class ExampleClass {
     /**

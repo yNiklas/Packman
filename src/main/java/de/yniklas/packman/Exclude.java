@@ -1,4 +1,4 @@
-package de.yniklas.packi;
+package de.yniklas.packman;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;

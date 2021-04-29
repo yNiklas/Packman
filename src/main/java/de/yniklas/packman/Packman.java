@@ -1,4 +1,4 @@
-package de.yniklas.packi;
+package de.yniklas.packman;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -10,18 +10,18 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
- * Packi packs objects into meaningful org.json.JSON objects.
+ * Packman packs objects into meaningful org.json.JSON objects.
  *
  * @author yNiklas (https://github.com/yNiklas)
  * @version 1.0
- * @apiNote https://github.com/yNiklas/Packi
+ * @apiNote https://github.com/yNiklas/Packman
  */
-public class Packi {
+public class Packman {
     private static final String DIR_SPLIT = "/";
 
     /**
-     * Packs (a) given object(s) regarding the objects Packi annotations.
-     * See https://github.com/yNiklas/Packi for more information and documentation.
+     * Packs (a) given object(s) regarding the objects Packman annotations.
+     * See https://github.com/yNiklas/Packman for more information and documentation.
      *
      * @param scope the scope to pack after.
      * @param packObject the object to be packed.
