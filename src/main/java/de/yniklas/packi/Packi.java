@@ -53,7 +53,10 @@ public class Packi {
                 // For default, use the class name.
                 if (toPackObject.getClass().getAnnotation(Package.class) != null
                         && !toPackObject.getClass().getAnnotation(Package.class).key().equals("")) {
-                    fullPack.put(toPackObject.getClass().getAnnotation(Package.class).key(), objectAsJSON);
+
+                    createSubDirectoriesAndPut(toPackObject.getClass().getAnnotation(Package.class).key(),
+                            toPackObject.getClass().getName(), fullPack, objectAsJSON);
+
                 } else {
                     fullPack.put(toPackObject.getClass().getName(), objectAsJSON);
                 }
@@ -78,15 +81,15 @@ public class Packi {
                 String dir = "";
                 String key = field.getName();
 
-                if (includeOnly != null) {
+                if (includeOnly != null && !includeOnly.key().equals("")) {
                     // IncludeOnly field, ignore all other cases
                     dir = includeOnly.key();
-                    key = includeOnly.key().equals("") ? field.getName() : includeOnly.key();
-                } else if (include != null) {
+                    key = includeOnly.key();
+                } else if (include != null && !include.key().equals("")) {
                     // Explicitly included by @Include annotation
                     // Package call to the scope
                     dir = include.key();
-                    key = include.key().equals("") ? field.getName() : include.key();
+                    key = include.key();
                 }
 
                 if (isJSONPrimitive(field.getType()) || field.getType().equals(List.class)
@@ -114,9 +117,13 @@ public class Packi {
         }
 
         Package packaging = objectClass.getAnnotation(Package.class);
+        if (packaging != null && (packaging.scopes().length == 0 || Arrays.stream(packaging.scopes()).toList().contains(scope))) {
+            return true;
+        }
+
         Include include = field.getAnnotation(Include.class);
-        return packaging != null || (include != null &&
-                (include.scopes().length == 0 || Arrays.stream(include.scopes()).toList().contains(scope)));
+        return include != null &&
+                (include.scopes().length == 0 || Arrays.stream(include.scopes()).toList().contains(scope));
     }
 
     private static boolean isJSONPrimitive(Class<?> type) {
@@ -188,5 +195,38 @@ public class Packi {
             value = pack(scope, value);
         }
         return value;
+    }
+
+    private static void createSubDirectoriesAndPut(String directoryDefinition, String defaultKey, JSONObject toFulfill,
+                                                   Object packedObject) {
+        List<String> dirs = new ArrayList<>(Arrays.asList(directoryDefinition.split(DIR_SPLIT)));
+        if (directoryDefinition.endsWith(DIR_SPLIT)) {
+            dirs.add(DIR_SPLIT);
+        }
+
+        JSONObject temporaryFulfill = toFulfill;
+        for (String dir : dirs) {
+            if (dir.equals("")) {
+                continue;
+            }
+
+            if (dirs.indexOf(dir) == dirs.size() - 1) {
+                // Deepest directory reached
+                String dirName = dir;
+                if (dir.equals(DIR_SPLIT)) {
+                    // Scope identifier ends with / -> use attribute name as key
+                    dirName = defaultKey;
+                }
+
+                temporaryFulfill.put(dirName, packedObject);
+            } else if (!temporaryFulfill.has(dir)) {
+                // Create sub-directory in the key-hierarchy
+                temporaryFulfill.put(dir, new JSONObject());
+                temporaryFulfill = temporaryFulfill.getJSONObject(dir);
+            } else if (temporaryFulfill.has(dir)) {
+                // If sub-directory exists, update just the object reference
+                temporaryFulfill = temporaryFulfill.getJSONObject(dir);
+            }
+        }
     }
 }
