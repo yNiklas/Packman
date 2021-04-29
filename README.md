@@ -24,7 +24,7 @@ will result in the JSON Object:
 ```
 {
   myStr: "hey!",
-  acc: {
+  cool: {
     theCoolByte: 14
   }
 }
