@@ -1,6 +1,35 @@
-# Packi - The Java-Object packaging
+# Packi:baggage_claim:- The Java-Object packaging:closed_book:
 Packi packs Java objects meaningful into JSONObjects - based on Annotations.
 > Typical use cases are f.e. Java backends sending JSON objects.
+A first, little example:
+```java
+@Package
+class Example {
+  @Include
+  String myStr = "hey!";
+  
+  @Include(key = "cool")
+  private AnotherCoolClass acc;
+  
+  @Exclude
+  int secretPin = 0;
+}
+
+class AnotherCoolClass {
+  @Include
+  byte theCoolByte = 14;
+}
+```
+will result in the JSON Object:
+```
+{
+  myStr: "hey!",
+  acc: {
+    theCoolByte: 14
+  }
+}
+```
+Let's get into this.
 
 ## Usage
 1. Prepare classes for packaging
@@ -25,7 +54,7 @@ Example:
 @Package
 class MyClass {
   String myString = "hi"; // <- will be included in every package
-  MyOtherCoolClass theOther = new MyOtherCoolClass(); // <- will be included in every package
+  private MyOtherCoolClass theOther = new MyOtherCoolClass(); // <- will be included in every package
 }
 ```
 By passing the scope list as parameter of the ```@Package``` annotation, you can define, in which package scopes the objects should be packed.
