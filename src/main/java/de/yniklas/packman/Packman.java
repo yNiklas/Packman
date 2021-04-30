@@ -7,6 +7,7 @@ import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -18,6 +19,7 @@ import java.util.List;
  */
 public class Packman {
     private static final String DIR_SPLIT = "/";
+    private static final HashMap<String, Integer> keySet = new HashMap<>();
 
     /**
      * Packs (a) given object(s) regarding the objects Packman annotations.
@@ -58,7 +60,7 @@ public class Packman {
                             toPackObject.getClass().getName(), fullPack, objectAsJSON);
 
                 } else {
-                    fullPack.put(toPackObject.getClass().getName(), objectAsJSON);
+                    fullPack.put(createJSONKey(toPackObject.getClass().getName(), fullPack), objectAsJSON);
                 }
             }
         } catch (IllegalAccessException e) {
@@ -98,7 +100,7 @@ public class Packman {
                     packTo(pack, dir, field.getName(), field.get(packObject), scope);
                 } else {
                     // Custom class packaging (e.g. annotated custom classes)
-                    pack.put(key, pack(scope, field.get(packObject)));
+                    pack.put(createJSONKey(key, pack), pack(scope, field.get(packObject)));
                 }
             }
         }
@@ -135,7 +137,7 @@ public class Packman {
     private static void packTo(JSONObject origin, String targetDir, String defaultFieldName, Object value,
                                String scope) {
         if (targetDir.equals("")) {
-            origin.put(defaultFieldName, parse(value, scope));
+            origin.put(createJSONKey(defaultFieldName, origin), parse(value, scope));
             return;
         }
 
@@ -158,7 +160,7 @@ public class Packman {
                     dirName = defaultFieldName;
                 }
 
-                fulfill.put(dirName, parse(value, scope));
+                fulfill.put(createJSONKey(dirName, fulfill), parse(value, scope));
             } else if (!fulfill.has(dir)) {
                 // Create sub-directory in the key-hierarchy
                 fulfill.put(dir, new JSONObject());
@@ -218,7 +220,7 @@ public class Packman {
                     dirName = defaultKey;
                 }
 
-                temporaryFulfill.put(dirName, packedObject);
+                temporaryFulfill.put(createJSONKey(dirName, temporaryFulfill), packedObject);
             } else if (!temporaryFulfill.has(dir)) {
                 // Create sub-directory in the key-hierarchy
                 temporaryFulfill.put(dir, new JSONObject());
@@ -227,6 +229,32 @@ public class Packman {
                 // If sub-directory exists, update just the object reference
                 temporaryFulfill = temporaryFulfill.getJSONObject(dir);
             }
+        }
+    }
+
+    /**
+     * Checks for multiple equal JSON keys.
+     * Attach numbers behind an equal key to make it unique.
+     *
+     * @param intendedKey the should-be JSON key.
+     * @return the validated JSON key.
+     * @since 1.0.1
+     */
+    private static String createJSONKey(String intendedKey, JSONObject packaging) {
+        if (packaging.has(intendedKey)) {
+            int value = 0;
+            int digits = 0;
+            for (int i = intendedKey.toCharArray().length - 1; i >= 0; i--) {
+                if (Character.isDigit(intendedKey.toCharArray()[i])) {
+                    value += Integer.parseInt(String.valueOf(intendedKey.toCharArray()[i]));
+                    digits++;
+                } else {
+                    break;
+                }
+            }
+            return value == 0 ? intendedKey + 1 : intendedKey.substring(0, intendedKey.length() - digits) + value;
+        } else {
+            return intendedKey;
         }
     }
 }

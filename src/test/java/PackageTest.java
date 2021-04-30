@@ -1,6 +1,7 @@
 import de.yniklas.packman.examples.ExampleClass;
 import de.yniklas.packman.Packman;
 import de.yniklas.packman.examples.ExampleListAttributes;
+import de.yniklas.packman.examples.ExampleMultipleKeys;
 import de.yniklas.packman.examples.ExamplePackage;
 import de.yniklas.packman.examples.ExampleScopePackage;
 import de.yniklas.packman.examples.ExampleScopePackage2;
@@ -193,5 +194,21 @@ public class PackageTest {
                 new JSONObject().put("myCoolString", "cool!")).put("de.yniklas.packman.examples.ExampleScopePackage2",
                 new JSONObject().put("seven", 7)));
         assertTrue(expected3.similar(packagedWithSameDir));
+    }
+
+    /**
+     * @since 1.0.1
+     */
+    @Test
+    public void testMultipleKeys() {
+        JSONObject packaged = Packman.pack("", new ExampleMultipleKeys(), new ExampleMultipleKeys());
+
+        JSONObject expected = new JSONObject()
+                .put("de.yniklas.packman.examples.ExampleMultipleKeys",
+                        new JSONObject().put("cool", 10).put("cool1", "huhu"))
+                .put("de.yniklas.packman.examples.ExampleMultipleKeys1",
+                        new JSONObject().put("cool", 10).put("cool1", "huhu"));
+
+        assertTrue(expected.similar(packaged));
     }
 }
