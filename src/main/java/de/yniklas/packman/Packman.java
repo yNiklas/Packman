@@ -19,7 +19,6 @@ import java.util.List;
  */
 public class Packman {
     private static final String DIR_SPLIT = "/";
-    private static final HashMap<String, Integer> keySet = new HashMap<>();
 
     /**
      * Packs (a) given object(s) regarding the objects Packman annotations.
