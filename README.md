@@ -30,6 +30,14 @@ will result in the JSON Object:
 }
 ```
 Let's get into this.
+## Maven repository
+```
+<dependency>
+  <groupId>io.github.yniklas</groupId>
+  <artifactId>Packman</artifactId>
+  <version>1.0.1</version>
+</dependency>
+```
 
 ## Usage
 1. Prepare classes for packaging
