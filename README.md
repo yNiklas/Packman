@@ -30,6 +30,14 @@ will result in the JSON Object:
 }
 ```
 Let's get into this.
+## Maven repository
+```
+<dependency>
+  <groupId>io.github.yniklas</groupId>
+  <artifactId>Packman</artifactId>
+  <version>1.0.1</version>
+</dependency>
+```
 
 ## Usage
 1. Prepare classes for packaging
@@ -138,11 +146,10 @@ Pack parameters:
 ---
 ## Important additional information:
 + There is currently no protection for StackOverflowErrors in case of infinite recursions caused by object references to the same object to which being packed.
-+ There is currently no work-around for equal JSON keys. The last object/field with the equal key will be the value.
++ To multiple equal JSON keys will be digits added to identify and include every value
 
 The GitHub repository contains example classes and a Test class to understand the Packaging System. They won't be included in the .jar library.
 
 ## Coming soon
-+ Consider multiple equal JSON keys
 + Implement options to use different keys for different scopes
 + Support multiple-scope packaging to pack after many scopes crossed by OR and AND
