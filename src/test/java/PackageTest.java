@@ -1,6 +1,8 @@
+import de.yniklas.packman.ScopePolicy;
 import de.yniklas.packman.examples.ExampleClass;
 import de.yniklas.packman.Packman;
 import de.yniklas.packman.examples.ExampleListAttributes;
+import de.yniklas.packman.examples.ExampleMultiScope;
 import de.yniklas.packman.examples.ExampleMultipleKeys;
 import de.yniklas.packman.examples.ExamplePackage;
 import de.yniklas.packman.examples.ExampleScopePackage;
@@ -208,6 +210,47 @@ public class PackageTest {
                         new JSONObject().put("cool", 10).put("cool1", "huhu"))
                 .put("de.yniklas.packman.examples.ExampleMultipleKeys1",
                         new JSONObject().put("cool", 10).put("cool1", "huhu"));
+
+        assertTrue(expected.similar(packaged));
+    }
+
+    /**
+     * @since 1.0.2
+     */
+    @Test
+    public void testNoScope() {
+        JSONObject packaged = Packman.pack(new String[]{}, ScopePolicy.AND, new ExampleMultiScope());
+        JSONObject expected = new JSONObject().put("uId", "0765765865");
+
+        assertTrue(expected.similar(packaged));
+    }
+
+    /**
+     * @since 1.0.2
+     */
+    @Test
+    public void testMultipleScopes_PolicyOR() {
+        JSONObject packaged = Packman.pack(new String[]{"productInfo", "copyright"}, ScopePolicy.OR, new ExampleMultiScope());
+
+        JSONObject expected = new JSONObject();
+        expected.put("uId", "0765765865").put("price", 25.99).put("productName", "Minecraft");
+
+        JSONObject userInfo = new JSONObject();
+        userInfo.put("username", "Jog");
+        userInfo.put("password", "topSecret");
+
+        expected.put("creator", userInfo);
+
+        assertTrue(expected.similar(packaged));
+    }
+
+    /**
+     * @since 1.0.2
+     */
+    @Test
+    public void testMultipleScopes_PolicyAND() {
+        JSONObject packaged = Packman.pack(new String[]{"productInfo", "copyright"}, ScopePolicy.AND, new ExampleMultiScope());
+        JSONObject expected = new JSONObject().put("uId", "0765765865");
 
         assertTrue(expected.similar(packaged));
     }

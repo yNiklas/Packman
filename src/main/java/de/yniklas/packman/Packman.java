@@ -30,11 +30,16 @@ public class Packman {
      * @return the packed object as a org.json.JSONObject.
      */
     public static JSONObject pack(String scope, Object packObject, Object... morePackageObjects) {
+        // Policy doesn't matter on single-scope packaging
+        return pack(new String[]{scope}, ScopePolicy.OR, packObject, morePackageObjects);
+    }
+
+    public static JSONObject pack(String[] scopes, ScopePolicy policy, Object packObject, Object... morePackageObjects) {
         // Single objects aren't in a sub-object inside the package.
         // -> Separate this case
         if (morePackageObjects.length == 0) {
             try {
-                return packSingleObject(packObject, scope);
+                return packSingleObject(packObject, scopes, policy);
             } catch (IllegalAccessException e) {
                 // Return an empty object in case of access errors
                 return new JSONObject();
@@ -47,7 +52,7 @@ public class Packman {
 
         try {
             for (Object toPackObject : toPackObjects) {
-                JSONObject objectAsJSON = packSingleObject(toPackObject, scope);
+                JSONObject objectAsJSON = packSingleObject(toPackObject, scopes, policy);
 
                 // Give every object the key defined in the class Package annotation.
                 // For default, use the class name.
@@ -67,12 +72,12 @@ public class Packman {
         return fullPack;
     }
 
-    private static JSONObject packSingleObject(Object packObject, String scope) throws IllegalAccessException {
+    private static JSONObject packSingleObject(Object packObject, String[] scopes, ScopePolicy policy) throws IllegalAccessException {
         JSONObject pack = new JSONObject();
 
         for (Field field : packObject.getClass().getDeclaredFields()) {
             field.setAccessible(true);
-            if (isIncluded(field, scope)) {
+            if (isIncluded(field, scopes, policy)) {
                 // Either field is explicitly @Include annotated or inherit by the @Package annotation from the class.
                 // Otherwise there is an @IncludeOnly annotation
                 Include include = field.getAnnotation(Include.class);
@@ -95,10 +100,10 @@ public class Packman {
                 if (isJSONPrimitive(field.getType()) || field.getType().equals(List.class)
                         || field.getType().isArray()) {
                     // Packaging for primitive types, lists and arrays
-                    packTo(pack, dir, field.getName(), field.get(packObject), scope);
+                    packTo(pack, dir, field.getName(), field.get(packObject), scopes, policy);
                 } else {
                     // Custom class packaging (e.g. annotated custom classes)
-                    pack.put(createJSONKey(key, pack), pack(scope, field.get(packObject)));
+                    pack.put(createJSONKey(key, pack), pack(scopes, policy, field.get(packObject)));
                 }
             }
         }
@@ -125,7 +130,28 @@ public class Packman {
         return include != null &&
                 (include.scopes().length == 0 || Arrays.stream(include.scopes()).toList().contains(scope));
     }
-    
+
+    private static boolean isIncluded(Field field, String[] scopes, ScopePolicy scopePolicy) {
+        if (scopes.length == 0) {
+            Include include = field.getAnnotation(Include.class);
+            Package packaging = field.getDeclaringClass().getAnnotation(Package.class);
+            Exclude exclude = field.getAnnotation(Exclude.class);
+
+            if (exclude != null && exclude.scopes().length == 0) {
+                return false;
+            }
+
+            return (include != null && include.scopes().length == 0)
+                    || (packaging != null && packaging.scopes().length == 0);
+        }
+
+        if (scopePolicy.equals(ScopePolicy.OR)) {
+            return Arrays.stream(scopes).anyMatch(scope -> isIncluded(field, scope));
+        } else {
+            return Arrays.stream(scopes).allMatch(scope -> isIncluded(field, scope));
+        }
+    }
+
     private static boolean isJSONPrimitive(Class<?> type) {
         return type.isPrimitive() || type.equals(Integer.class) || type.equals(Long.class)
                 || type.equals(Float.class) || type.equals(Byte.class) || type.equals(Double.class)
@@ -133,9 +159,9 @@ public class Packman {
     }
 
     private static void packTo(JSONObject origin, String targetDir, String defaultFieldName, Object value,
-                               String scope) {
+                               String[] scopes, ScopePolicy policy) {
         if (targetDir.equals("")) {
-            origin.put(createJSONKey(defaultFieldName, origin), parse(value, scope));
+            origin.put(createJSONKey(defaultFieldName, origin), parse(value, scopes, policy));
             return;
         }
 
@@ -158,7 +184,7 @@ public class Packman {
                     dirName = defaultFieldName;
                 }
 
-                fulfill.put(createJSONKey(dirName, fulfill), parse(value, scope));
+                fulfill.put(createJSONKey(dirName, fulfill), parse(value, scopes, policy));
             } else if (!fulfill.has(dir)) {
                 // Create sub-directory in the key-hierarchy
                 fulfill.put(dir, new JSONObject());
@@ -170,14 +196,14 @@ public class Packman {
         }
     }
 
-    private static Object parse(Object value, String scope) {
+    private static Object parse(Object value, String[] scopes, ScopePolicy policy) {
         if (value instanceof List) {
             JSONArray list = new JSONArray();
             ((List) value).forEach(item -> {
                 if (isJSONPrimitive(item.getClass())) {
                     list.put(item);
                 } else {
-                    list.put(parse(item, scope));
+                    list.put(parse(item, scopes, policy));
                 }
             });
             value = list;
@@ -187,12 +213,12 @@ public class Packman {
                 if (isJSONPrimitive(Array.get(value, i).getClass())) {
                     array.put(Array.get(value, i));
                 } else {
-                    array.put(parse(Array.get(value, i), scope));
+                    array.put(parse(Array.get(value, i), scopes, policy));
                 }
             }
             value = array;
         } else if (!isJSONPrimitive(value.getClass())) {
-            value = pack(scope, value);
+            value = pack(scopes, policy, value);
         }
         return value;
     }
