@@ -30,8 +30,8 @@ will result in the JSON Object:
 }
 ```
 Let's get into this.
-## Maven repository
-```
+## Maven repository/Installation
+```xml
 <dependency>
   <groupId>io.github.yniklas</groupId>
   <artifactId>Packman</artifactId>
