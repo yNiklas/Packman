@@ -72,7 +72,7 @@ public class Packman {
 
         for (Field field : packObject.getClass().getDeclaredFields()) {
             field.setAccessible(true);
-            if (isIncluded(field, scope, packObject.getClass())) {
+            if (isIncluded(field, scope)) {
                 // Either field is explicitly @Include annotated or inherit by the @Package annotation from the class.
                 // Otherwise there is an @IncludeOnly annotation
                 Include include = field.getAnnotation(Include.class);
@@ -105,7 +105,7 @@ public class Packman {
         return pack;
     }
 
-    private static boolean isIncluded(Field field, String scope, Class<?> objectClass) {
+    private static boolean isIncluded(Field field, String scope) {
         Exclude exclude = field.getAnnotation(Exclude.class);
         if (exclude != null && (exclude.scopes().length == 0 || Arrays.stream(exclude.scopes()).toList().contains(scope))) {
             return false;
@@ -116,7 +116,7 @@ public class Packman {
             return Arrays.asList(includeOnly.scopes()).contains(scope);
         }
 
-        Package packaging = objectClass.getAnnotation(Package.class);
+        Package packaging = field.getDeclaringClass().getAnnotation(Package.class);
         if (packaging != null && (packaging.scopes().length == 0 || Arrays.stream(packaging.scopes()).toList().contains(scope))) {
             return true;
         }
@@ -125,7 +125,7 @@ public class Packman {
         return include != null &&
                 (include.scopes().length == 0 || Arrays.stream(include.scopes()).toList().contains(scope));
     }
-
+    
     private static boolean isJSONPrimitive(Class<?> type) {
         return type.isPrimitive() || type.equals(Integer.class) || type.equals(Long.class)
                 || type.equals(Float.class) || type.equals(Byte.class) || type.equals(Double.class)
