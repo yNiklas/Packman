@@ -35,18 +35,19 @@ Let's get into this.
 <dependency>
   <groupId>io.github.yniklas</groupId>
   <artifactId>Packman</artifactId>
-  <version>1.0.1</version>
+  <version>1.0.2</version>
 </dependency>
 ```
 
 ## Usage
 1. Prepare classes for packaging
-2. Pack using Packman.pack(...);
+2. Pack using `Packman.pack(...)`;
 
 ### Principle
 Use scopes to separate objects and adjust the fields/objects implemented in the JSON packages.
 For example, use a new scope for every request type like: "login", "getDashboardInfo". With scopes, you let Packman create your Packages individually based on the scopes passed as 
 parameter of a annotation. For further explanations and examples, see the example classes in this GitHub repository.
+Since v1.0.2, multiple scopes are supported, coming with AND and OR policies.
 
 ---
 
@@ -134,12 +135,22 @@ class User {
 
 ---
 ### Pack with Packman
-After annotating the classes and fields, objects can be packed by typing the following command:
+After annotating the classes and fields, objects can be packed by typing the following command (**single scope**):
 ```java
 Packman.pack("myScope", theObjectIWantToPack);
 ```
 Pack parameters:
 + ```scope: String``` The scope you want to package. "" is default value and explicitly allowed since classes and fields can be annotated so.
++ ```packObject: Object``` A object to pack.
++ ```moreObjects...``` More objects to be packed all in the same package (the packObject will be also part of the result JSON object). The additional objects are separated by ",".
+
+Pack with multiple scopes:
+```java
+Packman.pack(new String[]{"productInfo", "userData"}, ScopePolicy.OR, theObjectIWantToPack);
+```
+Pack parameters:
++ ```scopes: String[]``` All scopes you want Packman to consider while packaging.
++ ```policy: ScopePolicy``` The Policy you want to apply to the given scopes. If you choose `ScopePolicy.OR`, a object/field must only be included in one of the given scopes. If you choose `ScopePolicy.AND`, a object/field must be in all of the given scopes to be present in the result JSON Object. Fields/Object being included for every scope (e.g. throw a simple @Include) won't be affected and furthermore present.
 + ```packObject: Object``` A object to pack.
 + ```moreObjects...``` More objects to be packed all in the same package (the packObject will be also part of the result JSON object). The additional objects are separated by ",".
 
@@ -152,4 +163,3 @@ The GitHub repository contains example classes and a Test class to understand th
 
 ## Coming soon
 + Implement options to use different keys for different scopes
-+ Support multiple-scope packaging to pack after many scopes crossed by OR and AND
