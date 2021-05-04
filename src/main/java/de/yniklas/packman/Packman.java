@@ -34,6 +34,17 @@ public class Packman {
         return pack(new String[]{scope}, ScopePolicy.OR, packObject, morePackageObjects);
     }
 
+    /**
+     * Packs (a) given object(s) regarding the objects Packman annotations and multiple scopes.
+     * See https://github.com/yNiklas/Packman for more information and documentation.
+     *
+     * @param scopes all scopes to pack after.
+     * @param policy decide whether the scopes are a must-have for objects/fields (AND) or
+     *               just match any scope of the given array (OR).
+     * @param packObject the object to pack.
+     * @param morePackageObjects further objects to pack in the same package.
+     * @return the packed object as a org.json.JSONObject.
+     */
     public static JSONObject pack(String[] scopes, ScopePolicy policy, Object packObject, Object... morePackageObjects) {
         // Single objects aren't in a sub-object inside the package.
         // -> Separate this case
