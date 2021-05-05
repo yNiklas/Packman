@@ -14,7 +14,7 @@ import java.lang.annotation.Target;
  *
  * Weaker than excludes.
  *
- * @IncludeOnly = @IncludeOnly() = @IncludeOnly(scopes = {}) is redundant and won't have any effect.
+ * @IncludeOnly = @IncludeOnly() = @IncludeOnly(scopes = {}) is redundant but has an excluding effect.
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.FIELD)

@@ -5,6 +5,7 @@ import org.json.JSONObject;
 
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
+import java.lang.reflect.InaccessibleObjectException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -50,8 +51,20 @@ public class Packman {
         // -> Separate this case
         if (morePackageObjects.length == 0) {
             try {
+                // Resolve enum constants
+                if (packObject.getClass().isEnum()) {
+                    for (Field declaredField : packObject.getClass().getDeclaredFields()) {
+                        if (declaredField.getName().equals(packObject.toString())
+                                && isIncluded(declaredField, scopes, policy)) {
+                            JSONObject pack = new JSONObject();
+                            packAsEnum(pack, packObject, declaredField);
+                            return pack;
+                        }
+                    }
+                }
+
                 return packSingleObject(packObject, scopes, policy);
-            } catch (IllegalAccessException e) {
+            } catch (IllegalAccessException | InaccessibleObjectException e) {
                 // Return an empty object in case of access errors
                 return new JSONObject();
             }
@@ -63,6 +76,17 @@ public class Packman {
 
         try {
             for (Object toPackObject : toPackObjects) {
+                // Resolve enum constants
+                if (toPackObject.getClass().isEnum()) {
+                    for (Field declaredField : toPackObject.getClass().getDeclaredFields()) {
+                        if (declaredField.getName().equals(toPackObject.toString())
+                                && isIncluded(declaredField, scopes, policy)) {
+                            packAsEnum(fullPack, toPackObject, declaredField);
+                        }
+                    }
+                    continue;
+                }
+
                 JSONObject objectAsJSON = packSingleObject(toPackObject, scopes, policy);
 
                 // Give every object the key defined in the class Package annotation.
@@ -77,10 +101,22 @@ public class Packman {
                     fullPack.put(createJSONKey(toPackObject.getClass().getName(), fullPack), objectAsJSON);
                 }
             }
-        } catch (IllegalAccessException e) {
+        } catch (IllegalAccessException | InaccessibleObjectException e) {
             return fullPack;
         }
         return fullPack;
+    }
+
+    private static void packAsEnum(JSONObject fullPack, Object toPackObject, Field declaredField) {
+        Include include = declaredField.getAnnotation(Include.class);
+
+        if (include != null) {
+            fullPack.put(createJSONKey(
+                    include.key().equals("") ? toPackObject.toString() : include.key(), fullPack),
+                    toPackObject.toString());
+        } else {
+            fullPack.put(createJSONKey(toPackObject.toString(), fullPack), toPackObject.toString());
+        }
     }
 
     private static JSONObject packSingleObject(Object packObject, String[] scopes, ScopePolicy policy) throws IllegalAccessException {
@@ -109,9 +145,9 @@ public class Packman {
                 }
 
                 if (isJSONPrimitive(field.getType()) || field.getType().equals(List.class)
-                        || field.getType().isArray()) {
+                        || field.getType().isArray() || field.getType().isEnum()) {
                     // Packaging for primitive types, lists and arrays
-                    packTo(pack, dir, field.getName(), field.get(packObject), scopes, policy);
+                    putValuesWithDirectories(pack, dir, field.getName(), field.get(packObject), scopes, policy);
                 } else {
                     // Custom class packaging (e.g. annotated custom classes)
                     pack.put(createJSONKey(key, pack), pack(scopes, policy, field.get(packObject)));
@@ -169,8 +205,8 @@ public class Packman {
                 || type.equals(Character.class) || type.equals(String.class) || type.equals(Short.class);
     }
 
-    private static void packTo(JSONObject origin, String targetDir, String defaultFieldName, Object value,
-                               String[] scopes, ScopePolicy policy) {
+    private static void putValuesWithDirectories(JSONObject origin, String targetDir, String defaultFieldName, Object value,
+                                                 String[] scopes, ScopePolicy policy) {
         if (targetDir.equals("")) {
             origin.put(createJSONKey(defaultFieldName, origin), parse(value, scopes, policy));
             return;
@@ -228,6 +264,8 @@ public class Packman {
                 }
             }
             value = array;
+        } else if (value.getClass().isEnum()) {
+            value = value.toString();
         } else if (!isJSONPrimitive(value.getClass())) {
             value = pack(scopes, policy, value);
         }

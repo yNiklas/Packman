@@ -1,6 +1,8 @@
 import de.yniklas.packman.ScopePolicy;
 import de.yniklas.packman.examples.ExampleClass;
 import de.yniklas.packman.Packman;
+import de.yniklas.packman.examples.ExampleClassForEnum;
+import de.yniklas.packman.examples.ExampleEnum;
 import de.yniklas.packman.examples.ExampleListAttributes;
 import de.yniklas.packman.examples.ExampleMultiScope;
 import de.yniklas.packman.examples.ExampleMultipleKeys;
@@ -251,6 +253,32 @@ public class PackageTest {
     public void testMultipleScopes_PolicyAND() {
         JSONObject packaged = Packman.pack(new String[]{"productInfo", "copyright"}, ScopePolicy.AND, new ExampleMultiScope());
         JSONObject expected = new JSONObject().put("uId", "0765765865");
+
+        assertTrue(expected.similar(packaged));
+    }
+
+    /**
+     * @since 1.0.3
+     */
+    @Test
+    public void testEnumAttributes() {
+        JSONObject packaged = Packman.pack("", new ExampleClassForEnum());
+
+        JSONObject expected = new JSONObject();
+        expected.put("randomInt", 7).put("enumConstant", "TEST").put("superSOP", "SOP");
+
+        assertTrue(expected.similar(packaged));
+    }
+
+    /**
+     * @since 1.0.3
+     */
+    @Test
+    public void testEnumObjects() {
+        JSONObject packaged = Packman.pack("", ExampleEnum.TEST, ExampleEnum.SOP);
+
+        JSONObject expected = new JSONObject();
+        expected.put("test", "TEST").put("SOP", "SOP");
 
         assertTrue(expected.similar(packaged));
     }
