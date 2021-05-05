@@ -35,7 +35,7 @@ Let's get into this.
 <dependency>
   <groupId>io.github.yniklas</groupId>
   <artifactId>Packman</artifactId>
-  <version>1.0.2</version>
+  <version>1.0.3</version>
 </dependency>
 ```
 
