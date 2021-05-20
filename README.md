@@ -43,7 +43,7 @@ Let's get into this.
 
 ## Usage
 1. Prepare classes for packaging
-2. Pack using `Packman.pack(...)`;
+2. Pack using `Packman.pack(...);`
 
 ### Principle
 Use scopes to separate objects and adjust the fields/objects implemented in the JSON packages.
