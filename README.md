@@ -35,9 +35,11 @@ Let's get into this.
 <dependency>
   <groupId>io.github.yniklas</groupId>
   <artifactId>Packman</artifactId>
-  <version>1.0.3</version>
+  <version>1.0.4</version>
 </dependency>
 ```
++ v1.0.3 for Java 16 implementation
++ v1.0.4 for Java 11 implementation (recommended for existing projects)
 
 ## Usage
 1. Prepare classes for packaging
