@@ -9,6 +9,7 @@ import java.lang.reflect.InaccessibleObjectException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Packman packs objects into meaningful org.json.JSON objects.
@@ -159,7 +160,7 @@ public class Packman {
 
     private static boolean isIncluded(Field field, String scope) {
         Exclude exclude = field.getAnnotation(Exclude.class);
-        if (exclude != null && (exclude.scopes().length == 0 || Arrays.stream(exclude.scopes()).toList().contains(scope))) {
+        if (exclude != null && (exclude.scopes().length == 0 || Arrays.stream(exclude.scopes()).collect(Collectors.toList()).contains(scope))) {
             return false;
         }
 
@@ -169,13 +170,13 @@ public class Packman {
         }
 
         Package packaging = field.getDeclaringClass().getAnnotation(Package.class);
-        if (packaging != null && (packaging.scopes().length == 0 || Arrays.stream(packaging.scopes()).toList().contains(scope))) {
+        if (packaging != null && (packaging.scopes().length == 0 || Arrays.stream(packaging.scopes()).collect(Collectors.toList()).contains(scope))) {
             return true;
         }
 
         Include include = field.getAnnotation(Include.class);
         return include != null &&
-                (include.scopes().length == 0 || Arrays.stream(include.scopes()).toList().contains(scope));
+                (include.scopes().length == 0 || Arrays.stream(include.scopes()).collect(Collectors.toList()).contains(scope));
     }
 
     private static boolean isIncluded(Field field, String[] scopes, ScopePolicy scopePolicy) {
