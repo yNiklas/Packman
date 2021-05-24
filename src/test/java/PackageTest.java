@@ -6,6 +6,7 @@ import de.yniklas.packman.examples.ExampleEnum;
 import de.yniklas.packman.examples.ExampleListAttributes;
 import de.yniklas.packman.examples.ExampleMultiScope;
 import de.yniklas.packman.examples.ExampleMultipleKeys;
+import de.yniklas.packman.examples.ExampleNullValue;
 import de.yniklas.packman.examples.ExamplePackage;
 import de.yniklas.packman.examples.ExampleScopePackage;
 import de.yniklas.packman.examples.ExampleScopePackage2;
@@ -281,5 +282,15 @@ public class PackageTest {
         expected.put("test", "TEST").put("SOP", "SOP");
 
         assertTrue(expected.similar(packaged));
+    }
+
+    /**
+     * @since 1.0.5
+     */
+    @Test
+    public void testNullValues() {
+        JSONObject expected = new JSONObject();
+        expected.put("value", false);
+        assertTrue(expected.similar(Packman.pack("", new ExampleNullValue())));
     }
 }

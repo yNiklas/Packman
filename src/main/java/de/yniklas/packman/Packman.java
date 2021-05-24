@@ -124,7 +124,7 @@ public class Packman {
         JSONObject pack = new JSONObject();
 
         for (Field field : packObject.getClass().getDeclaredFields()) {
-            field.setAccessible(true);
+            field.trySetAccessible();
             if (isIncluded(field, scopes, policy)) {
                 // Either field is explicitly @Include annotated or inherit by the @Package annotation from the class.
                 // Otherwise there is an @IncludeOnly annotation
@@ -203,7 +203,8 @@ public class Packman {
     private static boolean isJSONPrimitive(Class<?> type) {
         return type.isPrimitive() || type.equals(Integer.class) || type.equals(Long.class)
                 || type.equals(Float.class) || type.equals(Byte.class) || type.equals(Double.class)
-                || type.equals(Character.class) || type.equals(String.class) || type.equals(Short.class);
+                || type.equals(Character.class) || type.equals(String.class) || type.equals(Short.class)
+                || type.equals(Boolean.class) || type.equals(boolean.class);
     }
 
     private static void putValuesWithDirectories(JSONObject origin, String targetDir, String defaultFieldName, Object value,
