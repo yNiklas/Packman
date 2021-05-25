@@ -291,6 +291,9 @@ public class PackageTest {
     public void testNullValues() {
         JSONObject expected = new JSONObject();
         expected.put("value", false);
-        assertTrue(expected.similar(Packman.pack("", new ExampleNullValue())));
+        expected.put("e", new JSONObject());
+
+        JSONObject pack = Packman.pack("", new ExampleNullValue());
+        assertTrue(expected.similar(pack));
     }
 }

@@ -51,6 +51,9 @@ public class Packman {
         // Single objects aren't in a sub-object inside the package.
         // -> Separate this case
         if (morePackageObjects.length == 0) {
+            if (packObject == null) {
+                return new JSONObject();
+            }
             try {
                 // Resolve enum constants
                 if (packObject.getClass().isEnum()) {
@@ -150,7 +153,6 @@ public class Packman {
                     // Packaging for primitive types, lists and arrays
                     putValuesWithDirectories(pack, dir, field.getName(), field.get(packObject), scopes, policy);
                 } else {
-                    // Custom class packaging (e.g. annotated custom classes)
                     pack.put(createJSONKey(key, pack), pack(scopes, policy, field.get(packObject)));
                 }
             }
@@ -246,7 +248,9 @@ public class Packman {
     }
 
     private static Object parse(Object value, String[] scopes, ScopePolicy policy) {
-        if (value instanceof List) {
+        if (value == null) {
+            value = new JSONObject();
+        } else if (value instanceof List) {
             JSONArray list = new JSONArray();
             ((List) value).forEach(item -> {
                 if (isJSONPrimitive(item.getClass())) {
